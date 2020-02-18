@@ -1,2 +1,4 @@
-# bayesianLinearRegression
-Bayesian Linear Regression
+# Analytic Bayesian Linear Regression
+
+
+
