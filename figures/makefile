@@ -1,19 +1,53 @@
-all: example1.pdf example2.pdf mixedModel.pdf
+all: pdf png
 
-example1.pdf:
+pdf: python tex
+
+python: pdf/example1.pdf pdf/example2.pdf pdf/mixedModel.pdf png
+
+tex: linearModel 
+
+pdf/example1.pdf:
 	python3 example1.py
+	echo "Done" pdf/example1.pdf
 
-example2.pdf:
+pdf/example2.pdf:
 	python3 example2.py
+	echo "Done" pdf/example2.pdf
 
-mixedModel.pdf:
+pdf/mixedModel.pdf:
 	python3 mixedModel.py
+	echo "Done" pdf/mixedModel.pdf
 
-png:
-	sudo mv /etc/ImageMagick-6/policy.xml /etc/ImageMagick-6/policy.xml.off
-	convert -density 300 example1.pdf png/example1-%d.png
-	convert -density 300 example2.pdf png/example2-%d.png
-	convert -density 300 mixedModel.pdf png/mixedModel-%d.png
-	sudo mv /etc/ImageMagick-6/policy.xml.off /etc/ImageMagick-6/policy.xml
+linearModel: pdf/linearModel.pdf clean_tex
+
+pdf/linearModel.pdf:
+	pdflatex -output-directory=pdf/ linearModel.tex 
+	
+png: 
+	# "If you have problems with 'convert', verify your rights in the ImageMagick policy.xml file.
+	# "If you don't know how to solve it, run:"
+	# "sudo mv /etc/<ImageMagick-path>/policy.xml /etc/<ImageMagick-path>/policy.xml.off"
+	- rm -f png/*
+	- convert -density 75 pdf/*  -set filename:fname '%t' 'png/%[filename:fname].png'
+
+clean_img:
+	- rm -f pdf/*
+	- rm -f png/*
+
+clean_tex: 
+	- rm -f pdf/*.log
+	- rm -f pdf/*.soc
+	- rm -f pdf/*.toc
+	- rm -f pdf/*.aux
+	- rm -f pdf/*.out
+	- rm -f pdf/main.idx
+	- rm -f pdf/*.bbl
+	- rm -f pdf/*.bbg
+	- rm -f pdf/*.dvi
+	- rm -f pdf/*.blg
+	- rm -f pdf/*.lof
+	- rm -f pdf/*.nav
+	- rm -f pdf/*.snm
+	- rm -f pdf/*~
 
 

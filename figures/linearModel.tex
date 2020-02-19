@@ -1,0 +1,37 @@
+\documentclass[10pt]{standalone}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+
+\input{../doc/tex/tikzlibrarybayesnet.code.tex}
+\input{../doc/tex/encabezado.tex}
+% \makeatletter
+% \newcommand{\vast}{\bBigg@{2.5}}
+% \newcommand{\Vast}{\bBigg@{14.5}}
+% \makeatother
+% 
+% \usepackage{helvet}
+% \renewcommand{\familydefault}{\sfdefault}
+\begin{document}
+\centering
+    \tikz{
+
+    \node[latent, fill=black!100, minimum size=2pt] (x) {} ; %
+    \node[const, right=of x] (c_x) {$\vm{x}_n$};
+    \node[latent, fill=black!20, yshift=-1.5cm] (t) {$t_n$} ; %
+    \node[latent, fill=black!100, yshift=-1.5cm , xshift=-2cm,minimum size=2pt] (beta)
+    {} ; %
+    \node[const, above=of beta] (c_beta) {$\beta$};
+    \node[latent, fill=black!0, yshift=-1.5cm, xshift=2cm] (w) {$\vm{w}$};
+    \node[latent, fill=black!100, xshift=2cm, minimum size=2pt] (alpha) {} ; %
+    \node[const, right=of alpha] (c_alpha) {$\alpha$};
+    \node[invisible, right=of w,right=1cm] (i_w) {};
+    
+    \edge {x,beta,w} {t};
+    \edge {alpha} {w};
+    
+    \node[invisible, fill=black!0, minimum size=0pt, xshift=-0.52cm] (data_inv) {} ; %
+    \plate {data} {(t)(x)(c_x)(data_inv)} {$N$}; %
+      
+    }  
+
+\end{document}

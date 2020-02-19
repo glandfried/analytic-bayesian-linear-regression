@@ -1,0 +1,97 @@
+Linear regression models share the property of being linear in their parameters but not necessarily in their input variables.
+Using non-linear basis functions of input variables, linear models are able model arbitrary non-linearities from input variables to targets.  
+Polynomial regression is such an example of basis functions.
+A linear regression model $y(\bm{x},\bm{w})$
+
+\begin{equation}
+y(\bm{x},\bm{w}) = \sum_{i=0}^{M-1} w_i \phi_i(\bm{x}) = \bm{w}^T \bm{\phi}(\bm{x})
+\end{equation}
+
+Where $\Phi$ is the basis function and $M$ the total number of parameters $w_j$.
+Here, we use the convention $\phi_0(\bm{x})=1$.
+The simplest form of linear regression models are also linear functions of their input variables i.e. the set of basis functions in this case is the identity $\bm{\phi}(\bm{x})=x$. 
+
+The target variable $t$ of an observation $\bm{x}$ is given by a deterministic function $y(\bm{x},\bm{w})$ plus additive random noise.
+
+\begin{equation}
+ t = y(\vm{x},\vm{w}) + \epsilon
+\end{equation}
+
+where $\epsilon$ is a zero mean Gaussian random variable with precision (inverse variance) $\beta$, $\epsilon \sim N(0,\beta^{-1})$.
+So the probabilistic model of the target random variable,
+
+\begin{equation}
+p(t | \bm{x}, \bm{w}, \beta) = N(t | y(\bm{x},\bm{w}), \beta^{-1}) = N(t | \bm{w}^T \bm{\phi}(\bm{x}) , \beta^{-1})
+\end{equation}
+
+Since we asume i.i.d., the joint conditional probability of $\bm{y}$
+
+\begin{equation}
+p(\bm{t} | \bm{x}, \bm{w}, \beta) = \prod_{i=1}^n N(t_i | \bm{w}^T \bm{\phi}(\bm{x}_i) , \beta^{-1})
+\end{equation}
+
+
+\begin{algorithm}
+  \caption{Likelihood for Linear Regression Model}
+  \label{alg:likelihood_for_linear_regression_model}
+  %\lstinputlisting{../ablr/linear/likelihood.py}
+\begin{lstlisting}
+import numpy as np
+from scipy.stats import norm 
+def likelihood(w, t, Phi, beta):
+    res = 1
+    for i in range(len(t)):
+        mean = w.T.dot(Phi[i])
+        sigma = np.sqrt(beta**(-1))
+        res =  res * norm.pdf(t[i],mean,sigma)
+    return res
+\end{lstlisting}
+\end{algorithm}
+
+
+\paragraph{Maximum likelihood}
+
+Maximizing the log likelihood gives the maximum likelihood estimate of parameters $\bm{\beta}$.
+
+\begin{equation}\label{eq:maximum_likelihood}
+ \begin{split}
+   \text{log } p(\bm{t} | \bm{x}, \bm{w}, \beta) & = \sum_{i=1}^{n} \text{log } N(t_i | \bm{w}^T \bm{\phi}(\bm{x}_i), \sigma)  \\
+  & =  \sum_{i=1}^{n} \text{log }  \frac{\sqrt{\beta} }{\sqrt{2\pi}} e^{\frac{-(t_i - \bm{w}^T\bm{\phi}(\bm{x}_i))^2}{2\beta^{-1}} } = \sum_{i=1}^{n} \text{log } \frac{\sqrt{\beta} }{\sqrt{2\pi}} + \sum_{i=1}^{n} \text{log } e^{\frac{-(t_i - \bm{w}^T\bm{\phi}(\bm{x}_i))^2}{2\beta^{-1}} } \\
+  & = n \text{log } \frac{\sqrt{\beta} }{\sqrt{2\pi}} + \sum_{i=1}^{n} \text{log } e^{\frac{-(t_i - \bm{w}^T\bm{\phi}(\bm{x}_i))^2}{2\beta^{-1}} } = n \text{log } \frac{\sqrt{\beta} }{\sqrt{2\pi}} + \sum_{i=1}^{n}  \frac{-(t_i - \bm{w}^T\bm{\phi}(\bm{x}_i))^2}{2\beta^{-1}} \\
+   &  = n \text{ log } \sqrt{\beta} - n \text{ log } \sqrt{2\pi} - \frac{\beta}{2} \sum_{i=1}^{n}  (t_i - \bm{w}^T\bm{\phi}(\bm{x}_i))^2   \\
+  & \propto  - \sum_{i=1}^{n}  (t_i - \bm{w}^T\bm{\phi}(\bm{x}_i))^2 = ||\bm{t}-\bm{\Phi}\bm{w}||^2
+ \end{split}
+\end{equation}
+
+Maximizing the likelihood is equivalent to minimizing the sum-of-squares error function.
+Matrix $\bm{\Phi}$ is called the \emph{design matrix}
+
+\begin{equation}
+ \bm{\Phi} =
+  \begin{pmatrix}
+    \phi_0(\bm{x}_1) & \phi_1(\bm{x}_1) & \dots & \phi_{M-1}(\bm{x}_1)\\
+    \vdots & \vdots & \ddots & \vdots \\
+    \phi_0(\bm{x}_N) & \phi_1(\bm{x}_N) & \dots & \phi_{M-1}(\bm{x}_N)
+  \end{pmatrix}
+  = 
+  \begin{pmatrix}
+   \bm{\phi}(\vm{x}_1)^T \\
+   \vdots \\
+   \bm{\phi}(\vm{x}_N)^T \\
+  \end{pmatrix}
+\end{equation}
+
+Notar que cada basis function $\phi_j(\cdot)$ recibe el vector-input completo $\bm{x}_i$.
+Cuando trabajamos en una dimensi\'on, el vector $\bm{x}_i$ es un escalar.
+
+
+
+\todo[inline]{Resolver $\bm{w}_{ML}$ y $\beta_{ML}$}
+% Solving for $\bm{w}$ we obtain
+% 
+% \begin{equation}
+%  \bm{w}_{ML} = ()
+% \end{equation}
+
+
+

@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib.backends.backend_pdf
 import os
 name = os.path.basename(__file__).split(".py")[0]#name="prueba"
-pdf = matplotlib.backends.backend_pdf.PdfPages(name+".pdf")
+# pdf = matplotlib.backends.backend_pdf.PdfPages(name+".pdf")
 ###############
 
 
@@ -19,6 +19,7 @@ from scipy.stats import multivariate_normal as normal
 
 np.random.seed(1)
 
+
 N = 20
 N_list = [0, 1, 2, 4,N]
 
@@ -34,14 +35,13 @@ X_grilla = np.linspace(0, 1, 100).reshape(-1, 1)-0.5
 y_grilla = np.linspace(-1.4, 1.4, 100).reshape(-1, 1)
 y_true = sinus_model(X_grilla , 0)
 
-fig = plt.figure()   
 plt.plot(X_grilla, y_true, '--', color="black")
 plt.plot(X,t,'.', color='black')
 plt.xticks(fontsize=12) # rotation=90
 plt.yticks(fontsize=12) # rotation=90
 plt.title("Objective function")
-pdf.savefig(fig)
-
+plt.savefig("pdf/example2_true_and_sample.pdf")
+plt.close()    
 
 
 prior_predictive_online = np.zeros((10,1))
@@ -64,20 +64,19 @@ for d in range(10):#d=1
     prior_predictive_joint[d,0] = np.log(predictive(t, Phi, beta, alpha ))
     log_evidence_joint[d,0] = log_evidence(t, Phi, beta, alpha)
     
-fig = plt.figure()   
+plt.close()
 plt.plot(prior_predictive_joint)
 plt.plot(log_evidence_joint)
-plt.plot(prior_predictive_online)    
+plt.plot(prior_predictive_online)
 plt.xticks(fontsize=12) # rotation=90
 plt.yticks(fontsize=12) # rotation=90
 plt.ylabel("Evidence (log scale)", fontsize=16 )
 plt.xlabel("Complexity (log scale)", fontsize=16 )
-plt.title("Evidence")
-pdf.savefig(fig)
+plt.savefig("pdf/example2_evidence.pdf")
+plt.close()    
 
-
-###############3
-pdf.close()    
+#### End
+# pdf.close()
     
 '''
 for d in range(10):#d=3

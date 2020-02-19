@@ -1,7 +1,18 @@
-all: example1 example2
+all: setup figures doc
 
 figures: 
 	make -C figures/
+
+doc:
+	make -C doc/
+	
+#README.md:
+#	pandoc -s doc/bayesianLinearRegression.tex -o bayesianLinearRegression.md
+#	sed -i 's/..\/figures/figures/g' bayesianLinearRegression.md
+#	sed -i 's/pdf/png/g' bayesianLinearRegression.md
+#	sed -i 's/{width="\\textwidth"}//g' bayesianLinearRegression.md
+#	sed -i 's/{width="0\.[0-9][0-9]cm"}/                /g' bayesianLinearRegression.md
+#	sed -i 's/\[0\.[0-9][0-9]\]{}/ /g' bayesianLinearRegression.md
 
 
 setup: /usr/local/lib/python3.6/dist-packages/ablr-0.0.0-py3.6.egg

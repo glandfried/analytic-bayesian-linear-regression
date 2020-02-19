@@ -5,12 +5,14 @@ name = os.path.basename(__file__).split(".py")[0]#name="prueba"
 pdf = matplotlib.backends.backend_pdf.PdfPages(name+".pdf")
 ###############
 
+"""
 if __package__ is None or __package__ == '':
     # uses current directory visibility
     import sys
     sys.path.append('..')
     print("__package__ None!")
-    
+"""
+ 
 from ablr.mixed.mixedModel import *
 from ablr.linear.basisFunctions import polynomial_basis_function
 import numpy as np
@@ -60,14 +62,15 @@ m[1][1] == mw_N
 S[1][0][0] == Sv_N
 S[1][1][1] == Sw_N
 
-fig = plt.figure()   
+
 for i in range(L):#i=0
     plt.plot([-1,1],[mw_N[0]+mv_N[i]-mw_N[1],mw_N[0]+mv_N[i]+mw_N[1]],color="gray" )
     plt.plot(X[(n[i]*i):n[i]*(i+1),0],t[(n[i]*i):n[i]*(i+1),0], '.')
 plt.xticks(fontsize=12) # rotation=90
 plt.yticks(fontsize=12) # rotation=90
 plt.title("Same slope")
-pdf.savefig(fig)
+plt.savefig("pdf/mixedModel_linearSameSlope.pdf")
+plt.close()    
 
 """
 fig = plt.figure()   
@@ -118,8 +121,6 @@ plt.tight_layout()
 """
 
 # intercept
-fig = plt.figure()   
-
 M, L = 2, 10
 n = [6]*L
 N = sum(n)
@@ -139,13 +140,16 @@ for i in range(L):#i=0
 
 plt.xticks(fontsize=12) # rotation=90
 plt.yticks(fontsize=12) # rotation=90
-plt.title("All different")
+plt.title("Different Intercept and slope")
 
-pdf.savefig(fig)
+plt.savefig("pdf/mixedModel_linearAllDifferent.pdf")
+plt.close()    
 
+#### End
 pdf.close()
-# Datos reales
+
 '''
+# Datos reales
 ftot_perf <- read.csv("../Datos/dosClases/glmm/10.csv", header =T)
 for (i in seq(11,500)){ #i<-100
   file <- paste0(paste0("../Datos/dosClases/glmm/",toString(i)),".csv")

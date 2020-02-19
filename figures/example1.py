@@ -2,10 +2,10 @@ import matplotlib.pyplot as plt
 import matplotlib.backends.backend_pdf
 import os
 name = os.path.basename(__file__).split(".py")[0]#name="prueba"
-pdf = matplotlib.backends.backend_pdf.PdfPages(name+".pdf")
-# pdf.savefig( fig )
-# pdf.close()
-####
+# pdf = matplotlib.backends.backend_pdf.PdfPages(name+".pdf")
+## pdf.savefig( fig )
+## pdf.close()
+#################
 
 """
 if __package__ is None or __package__ == '':
@@ -22,21 +22,24 @@ from ablr.linear.basisFunctions import identity_basis_function, phi#,polynomial_
 import numpy as np
 import math
 from scipy.stats import multivariate_normal as normal
+# Seed
+np.random.seed(1)
+
 # Training dataset sizes
-N_list = [0, 1, 2, 4, 20]
+N_list = [0, 1, 2, 4,20]
+
+plt.close()
 beta = (1/0.2)**2
 alpha = 2.0
 
 w0 = -0.3
 w1 = 0.5
 
-np.random.seed(1)
-
 # Data observations in [-1, 1)
 X =np.append([0.75,-0.75],np.random.rand(N_list[-1]-2,1)*2-1).reshape((N_list[-1],1))
+
 # Training target values
 t = linear_model(X, 1/beta, w0, w1)
-#print(t)
 # Test observations
 X_grilla = np.linspace(-1, 1, 100).reshape(-1, 1)
 
@@ -94,33 +97,28 @@ for i, N in list(enumerate(N_list[::-1])):#i=2;N=2
         Phi = Phi_N[N_list[j-1]:,:]
         T = t_N[N_list[j-1]:,:]
         likeli = np.matrix(lv(w0_grilla[:, np.newaxis],w1_grilla))
-        fig = plt.figure()
         plt.imshow(likeli .T,extent=[-1,1,-1,1])
         plt.plot(w0,w1,'+',color="red")
-        plt.title("Likelihood "+str(N))
         plt.tight_layout()
-        pdf.savefig( fig )
+        plt.savefig("pdf/example1_likelihood_{}.pdf".format(j))
+        plt.close()
         
     # Posterior
-    fig = plt.figure()
     belief = _posterior_v(X_,Y_)
     plt.imshow(belief,extent=[-1,1,-1,1])
     plt.plot(w0,w1,'+',color="red")
-    plt.title("Posterior "+str(N))
     plt.tight_layout()
-    pdf.savefig(fig)
-    
+    plt.savefig("pdf/example1_posterior_{}.pdf".format(j))
+    plt.close()
 
     # Data space
-    fig = plt.figure()
     plt.plot(X_grilla, y_samples)
-    plt.title("Data space "+str(N))
     plt.ylim(-1., 1.)
     plt.plot(X_N, t_N,'.',color="black")
-    pdf.savefig(fig)
+    plt.savefig("pdf/example1_dataSpace_{}.pdf".format(j))
+    plt.close()
     
     # Predictive
-    fig = plt.figure()
     belief = _predictive_v(X_, Y_)
     if i == 0: 
         max_pedictive = np.max(belief)
@@ -128,20 +126,23 @@ for i, N in list(enumerate(N_list[::-1])):#i=2;N=2
     plt.imshow(belief,extent=[-1,1,-1,1],vmin=0, vmax=max_pedictive)
     CS = plt.contour(X_,Y_,belief,levels,colors="black",alpha = 0.1)
     #plt.clabel(CS, inline=1, fontsize=10)
+    
     y_map = linear_model(X_grilla , 0, *m_N)
     plt.plot(X_grilla,y_map,color="black",alpha=0.7)
     if i > 0: 
         plt.plot(X[N_list[j]:N_list[j+1]], t[N_list[j]:N_list[j+1]],'o',color="black",mfc='none')
     plt.plot(X_N[:N_list[j],:], t_N[:N_list[j],:],'.',color="black",alpha=1)
+    
     plt.tight_layout()
-    plt.title("Predictive "+str(N))
-    pdf.savefig(fig)
+    plt.savefig("pdf/example1_predictive_{}.pdf".format(j))
+    plt.close()
     
     #plt.plot(X_grilla,belief[:,50])
     #plt.plot(y_grilla,belief[50,:].T)
     #plt.plot(y_grilla,belief[0,:].T)
-
+   
 ###############
-pdf.close()    
+#pdf.close()    
+bash_cmd = "convert $(ls -rt pdf/example1*) pdf/example1.pdf"
 #bash_cmd = "pdfcrop --margins '0 0 0 0' {0}.pdf {0}.pdf".format(name)
-#os.system(bash_cmd)
+os.system(bash_cmd)
