@@ -5,6 +5,8 @@ name = os.path.basename(__file__).split(".py")[0]#name="prueba"
 # pdf = matplotlib.backends.backend_pdf.PdfPages(name+".pdf")
 ###############
 
+import sys
+sys.path.append('..')
 
 from ablr.linear.posterior import posterior, prior
 from ablr.linear.predictive import moments_predictive, predictive, log_evidence

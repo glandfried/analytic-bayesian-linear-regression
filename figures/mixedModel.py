@@ -12,7 +12,8 @@ if __package__ is None or __package__ == '':
     sys.path.append('..')
     print("__package__ None!")
 """
- 
+import sys
+sys.path.append('..')
 from ablr.mixed.mixedModel import *
 from ablr.linear.basisFunctions import polynomial_basis_function
 import numpy as np

@@ -14,7 +14,8 @@ if __package__ is None or __package__ == '':
     sys.path.append('..')
     print("__package__ None!")
 """
-
+import sys
+sys.path.append('..')
 from ablr.linear.likelihood import likelihood
 from ablr.linear.posterior import posterior
 from ablr.linear.generative import linear_model

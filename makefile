@@ -1,4 +1,4 @@
-all: setup figures doc
+all: figures doc
 
 figures: 
 	make -C figures/
