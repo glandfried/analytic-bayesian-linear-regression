@@ -14,15 +14,284 @@
 
 \section{Linear Basis Function Models}
 
-\input{linearBasisFunctionModels.tex}
+Linear regression models share the property of being linear in their parameters but not necessarily in their input variables.
+Using non-linear basis functions of input variables, linear models are able model arbitrary non-linearities from input variables to targets.  
+Polynomial regression is such an example of basis functions.
+A linear regression model $y(\bm{x},\bm{w})$
+
+\begin{equation}
+y(\bm{x},\bm{w}) = \sum_{i=0}^{M-1} w_i \phi_i(\bm{x}) = \bm{w}^T \bm{\phi}(\bm{x})
+\end{equation}
+
+Where $\Phi$ is the basis function and $M$ the total number of parameters $w_j$.
+Here, we use the convention $\phi_0(\bm{x})=1$.
+The simplest form of linear regression models are also linear functions of their input variables i.e. the set of basis functions in this case is the identity $\bm{\phi}(\bm{x})=x$. 
+
+The target variable $t$ of an observation $\bm{x}$ is given by a deterministic function $y(\bm{x},\bm{w})$ plus additive random noise.
+
+\begin{equation}
+ t = y(\vm{x},\vm{w}) + \epsilon
+\end{equation}
+
+where $\epsilon$ is a zero mean Gaussian random variable with precision (inverse variance) $\beta$, $\epsilon \sim N(0,\beta^{-1})$.
+So the probabilistic model of the target random variable,
+
+\begin{equation}
+p(t | \bm{x}, \bm{w}, \beta) = N(t | y(\bm{x},\bm{w}), \beta^{-1}) = N(t | \bm{w}^T \bm{\phi}(\bm{x}) , \beta^{-1})
+\end{equation}
+
+Since we asume i.i.d., the joint conditional probability of $\bm{y}$
+
+\begin{equation}
+p(\bm{t} | \bm{x}, \bm{w}, \beta) = \prod_{i=1}^n N(t_i | \bm{w}^T \bm{\phi}(\bm{x}_i) , \beta^{-1})
+\end{equation}
+
+
+\begin{algorithm}
+  \caption{Likelihood for Linear Regression Model}
+  \label{alg:likelihood_for_linear_regression_model}
+  %\lstinputlisting{../ablr/linear/likelihood.py}
+\begin{lstlisting}
+import numpy as np
+from scipy.stats import norm 
+def likelihood(w, t, Phi, beta):
+    res = 1
+    for i in range(len(t)):
+        mean = w.T.dot(Phi[i])
+        sigma = np.sqrt(beta**(-1))
+        res =  res * norm.pdf(t[i],mean,sigma)
+    return res
+\end{lstlisting}
+\end{algorithm}
+
+
+\paragraph{Maximum likelihood}
+
+Maximizing the log likelihood gives the maximum likelihood estimate of parameters $\bm{\beta}$.
+
+\begin{equation}\label{eq:maximum_likelihood}
+ \begin{split}
+   \text{log } p(\bm{t} | \bm{x}, \bm{w}, \beta) & = \sum_{i=1}^{n} \text{log } N(t_i | \bm{w}^T \bm{\phi}(\bm{x}_i), \sigma)  \\
+  & =  \sum_{i=1}^{n} \text{log }  \frac{\sqrt{\beta} }{\sqrt{2\pi}} e^{\frac{-(t_i - \bm{w}^T\bm{\phi}(\bm{x}_i))^2}{2\beta^{-1}} } = \sum_{i=1}^{n} \text{log } \frac{\sqrt{\beta} }{\sqrt{2\pi}} + \sum_{i=1}^{n} \text{log } e^{\frac{-(t_i - \bm{w}^T\bm{\phi}(\bm{x}_i))^2}{2\beta^{-1}} } \\
+  & = n \text{log } \frac{\sqrt{\beta} }{\sqrt{2\pi}} + \sum_{i=1}^{n} \text{log } e^{\frac{-(t_i - \bm{w}^T\bm{\phi}(\bm{x}_i))^2}{2\beta^{-1}} } = n \text{log } \frac{\sqrt{\beta} }{\sqrt{2\pi}} + \sum_{i=1}^{n}  \frac{-(t_i - \bm{w}^T\bm{\phi}(\bm{x}_i))^2}{2\beta^{-1}} \\
+   &  = n \text{ log } \sqrt{\beta} - n \text{ log } \sqrt{2\pi} - \frac{\beta}{2} \sum_{i=1}^{n}  (t_i - \bm{w}^T\bm{\phi}(\bm{x}_i))^2   \\
+  & \propto  - \sum_{i=1}^{n}  (t_i - \bm{w}^T\bm{\phi}(\bm{x}_i))^2 = ||\bm{t}-\bm{\Phi}\bm{w}||^2
+ \end{split}
+\end{equation}
+
+Maximizing the likelihood is equivalent to minimizing the sum-of-squares error function.
+Matrix $\bm{\Phi}$ is called the \emph{design matrix}
+
+\begin{equation}
+ \bm{\Phi} =
+  \begin{pmatrix}
+    \phi_0(\bm{x}_1) & \phi_1(\bm{x}_1) & \dots & \phi_{M-1}(\bm{x}_1)\\
+    \vdots & \vdots & \ddots & \vdots \\
+    \phi_0(\bm{x}_N) & \phi_1(\bm{x}_N) & \dots & \phi_{M-1}(\bm{x}_N)
+  \end{pmatrix}
+  = 
+  \begin{pmatrix}
+   \bm{\phi}(\vm{x}_1)^T \\
+   \vdots \\
+   \bm{\phi}(\vm{x}_N)^T \\
+  \end{pmatrix}
+\end{equation}
+
+Notar que cada basis function $\phi_j(\cdot)$ recibe el vector-input completo $\bm{x}_i$.
+Cuando trabajamos en una dimensi\'on, el vector $\bm{x}_i$ es un escalar.
+
+
+
+\todo[inline]{Resolver $\bm{w}_{ML}$ y $\beta_{ML}$}
+% Solving for $\bm{w}$ we obtain
+% 
+% \begin{equation}
+%  \bm{w}_{ML} = ()
+% \end{equation}
+
+
+
+
 
 \section{Bayesian Linear Regression}
 
-\input{bayesianLinearRegression.tex}
+
+Maximum likelihood estimation can lead to severe over-fitting if complex models (e.g. polynomial regression models of high order) are fit to datasets of limited size.
+Common approachs to prevent over-fitting is to add a regularization term to the error function or to perform corss-validation.
+
+\begin{framed}
+Bayesian treatment of linear regression avoid over-fitting problem of maximum likelihood, and which will also leads to automatic methods of determining model complexity using the training data alone.
+\end{framed}
+
+For a Bayesian treatment of linear regression we need a prior probability distribution over model parameters $w$.
+
+\begin{equation}
+ p(\vm{w}) = \N(\vm{w}|\vm{m}_0, \vm{S}_0)
+\end{equation}
+
+Due to the choice of a conjugate Gaussian prior, the posterior will also be Gaussian.
+We can evaluate this distribution by the usal procedure of completing the square in the exponential, and then finding the normalization coefficient using the standard result for normalized Gaussian.
+The work for deriving the general result is at equation (\ref{eq:post})
+
+\begin{equation}
+ p(\vm{w}|\vm{t}) = \N(\vm{w}|\vm{m}_N, \vm{S}_N)
+\end{equation}
+
+where 
+
+\begin{equation}
+ \vm{m}_N = \vm{S}_N (\vm{S}_0^{-1} \vm{m}_0 + \beta \vm{\Phi}^T \vm{t})
+\end{equation}
+
+\begin{equation}
+ \vm{S}_N^{-1} = \vm{S}_0^{-1} + \beta \vm{\Phi}^T\vm{\Phi}
+\end{equation}
+
+For simplicity, we consider a zero-mean isotropic Gaussian prior governed by a single precision paramater $\alpha$ so that
+
+\begin{equation}
+ p(\vm{w}) = N(\vm{w}|\vm{0}, \alpha^{-1} \vm{I})
+\end{equation}
+
+then corresponding posterior distribution over $\vm{w}$ is then 
+
+
+\begin{equation}
+ \vm{m}_N = \beta  \vm{S}_N\vm{\Phi}^T \vm{t}
+\end{equation}
+
+\begin{equation}
+ \vm{S}_N^{-1} = \alpha \vm{I} + \beta \vm{\Phi}^T\vm{\Phi}
+\end{equation}
+
+
+To obtain an analytical solution we will treat $\beta$ as a known constant.
+Note that in supervised learning problems such as regression we are not seeking to model the distribution of the input variables, so we will treat the input $\vm{x}$ as a known constant.
+
+
+\begin{figure}[H]
+\begin{subfigure}[t]{0.32\textwidth}
+\includegraphics[width=\textwidth]{../figures/pdf/linearModel.pdf}
+\end{subfigure}
+\end{figure}
+
+
+\begin{algorithm}[H]  
+  \caption{Posterior for Linear Regression Model}
+  \label{alg:posterior_for_linear_regression_model}
+  %\lstinputlisting{../ablr/linear/posterior.py}
+\begin{lstlisting}
+def posterior(alpha, beta, t, Phi):
+    S_N_inv = alpha * np.eye(Phi.shape[1]) + beta * Phi.T.dot(Phi)
+    S_N = np.linalg.inv(S_N_inv)
+    m_N = beta * S_N.dot(Phi.T).dot(t)
+    return m_N, S_N
+\end{lstlisting}
+\end{algorithm}
+
+\begin{figure}[H]
+
+\begin{subfigure}[t]{0.32\textwidth} 
+\caption*{Likelihood} 
+\end{subfigure}
+\begin{subfigure}[t]{0.32\textwidth}
+\caption*{Prior/Posterior} 
+\includegraphics[width=\textwidth]{../figures/pdf/example1_posterior_0.pdf} 
+\end{subfigure}
+\begin{subfigure}[t]{0.32\textwidth}
+\caption*{Data space} 
+\includegraphics[width=\textwidth]{../figures/pdf/example1_dataSpace_0.pdf} 
+\end{subfigure}
+
+
+\begin{subfigure}[c]{0.32\textwidth}
+\includegraphics[width=\textwidth]{../figures/pdf/example1_likelihood_1.pdf} 
+\end{subfigure}
+\begin{subfigure}[c]{0.32\textwidth}
+\includegraphics[width=\textwidth]{../figures/pdf/example1_posterior_1.pdf} 
+\end{subfigure}
+\begin{subfigure}[c]{0.32\textwidth}
+\includegraphics[width=\textwidth]{../figures/pdf/example1_dataSpace_1.pdf} 
+\end{subfigure}
+
+\begin{subfigure}[c]{0.32\textwidth}
+\includegraphics[width=\textwidth]{../figures/pdf/example1_likelihood_2.pdf} 
+\end{subfigure}
+\begin{subfigure}[c]{0.32\textwidth}
+\includegraphics[width=\textwidth]{../figures/pdf/example1_posterior_2.pdf} 
+\end{subfigure}
+\begin{subfigure}[c]{0.32\textwidth}
+\includegraphics[width=\textwidth]{../figures/pdf/example1_dataSpace_2.pdf} 
+\end{subfigure}
+
+\begin{subfigure}[c]{0.32\textwidth}
+\includegraphics[width=\textwidth]{../figures/pdf/example1_likelihood_3.pdf} 
+\end{subfigure}
+\begin{subfigure}[c]{0.32\textwidth}
+\includegraphics[width=\textwidth]{../figures/pdf/example1_posterior_3.pdf} 
+\end{subfigure}
+\begin{subfigure}[c]{0.32\textwidth}
+\includegraphics[width=\textwidth]{../figures/pdf/example1_dataSpace_3.pdf} 
+\end{subfigure}
+
+\begin{subfigure}[c]{0.32\textwidth}
+\includegraphics[width=\textwidth]{../figures/pdf/example1_likelihood_4.pdf} 
+\end{subfigure}
+\begin{subfigure}[c]{0.32\textwidth}
+\includegraphics[width=\textwidth]{../figures/pdf/example1_posterior_4.pdf} 
+\end{subfigure}
+\begin{subfigure}[c]{0.32\textwidth}
+\includegraphics[width=\textwidth]{../figures/pdf/example1_dataSpace_4.pdf} 
+\end{subfigure}
+\caption{Ilustration of a sequential Bayesian learning for a simple linear model of the form $y(x,\vm{w})= w_0 + w_1 x$}
+\end{figure}
+
+
+
+
+
+\section{Evidence}
+
+% http://www.utstat.utoronto.ca/~radford/sta414.S11/week4a.pdf
+
+
 
 \section{Bayesian Mixed Model}
 
-\input{mixedModel.tex}
+% https://stats.idre.ucla.edu/other/mult-pkg/introduction-to-linear-mixed-models/
+
+\begin{quotation}
+% https://stats.idre.ucla.edu/other/mult-pkg/introduction-to-linear-mixed-models/
+Linear mixed models are an extension of simple linear models to allow both fixed and random effects, and are particularly used when there is non independence in the data, such as arises from a hierarchical structure.
+For example, students could be sampled from within classrooms, or patients from within doctors.
+
+When there are multiple levels, such as patients seen by the same doctor, the variability in the outcome can be thought of as being either within group or between group.
+Patient level observations are not independent, as within a given doctor patients are more similar.
+Units sampled at the highest level (in our example, doctors) are independent.
+
+There are multiple ways to deal with hierarchical data. One simple approach is to aggregate. For example, suppose 10 patients are sampled from each doctor. Rather than using the individual patients’ data, which is not independent, we could take the average of all patients within a doctor. This aggregated data would then be independent.
+
+Although aggregate data analysis yields consistent and effect estimates and standard errors, it does not really take advantage of all the data, because patient data are simply averaged. Looking at the figure above, at the aggregate level, there would only be six data points.
+
+Another approach to hierarchical data is analyzing data from one unit at a time. Again in our example, we could run six separate linear regressions—one for each doctor in the sample. Again although this does work, there are many models, and each one does not take advantage of the information in data from other doctors. This can also make the results “noisy” in that the estimates from each model are not based on very much data
+
+Linear mixed models (also called multilevel models) can be thought of as a trade off between these two alternatives. The individual regressions has many estimates and lots of data, but is noisy. The aggregate is less noisy, but may lose important differences by averaging all samples within each doctor. LMMs are somewhere inbetween.
+
+\end{quotation}
+
+\begin{equation}
+ \vm{t} = \vm{\Phi w} + \vm{C v}  + \bm{\varepsilon}
+\end{equation}
+
+Given $N$ number of data points, $M$ complexity of the model and $L$ the number of levels in the data.
+
+where the target $\vm{t}$ is a $N \times 1$ vector, the predictor $\vm{\Phi}$ is a $N \times M$ matrix, the fixed-effect parameter $\vm{w}$ is a $N \times 1$ vector, the random effects $\vm{C}$ is a $N \times L$ matrix, and their parameters $\vm{v}$ is a $L \times 1$ vector.
+
+
+
+\todo[inline]{Subir la posterior y evidence del mixed model (hoy en papel)}
+
+
 
  {\footnotesize
  \bibliographystyle{biblio/plos2015}
