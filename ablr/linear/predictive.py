@@ -37,7 +37,7 @@ def log_evidence(t, Phi, beta, alpha):
     A = np.linalg.inv(S_N)
     A_det = np.linalg.det(A)
     
-    E_mN = (beta/2) * (t - Phi.dot(m_N)).T.dot(t - Phi.dot(m_N)) \
+    E_mN = (beta/2) * np.linalg.norm(t - Phi.dot(m_N))**2  \
          + (alpha/2) * m_N.T.dot(m_N)
     
     res = (M/2) * np.log(alpha)   \
@@ -47,5 +47,4 @@ def log_evidence(t, Phi, beta, alpha):
         - (N/2) * np.log(2*np.pi)
         
     return res
-          
 

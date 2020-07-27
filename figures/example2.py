@@ -25,7 +25,7 @@ np.random.seed(1)
 N = 20
 N_list = [0, 1, 2, 4,N]
 
-beta = (1/0.2)**2
+beta = 25#(1/0.2)**2
 alpha = (5e-7) # Bishop usa alpha = 5e-3
 
 # Data 
@@ -76,7 +76,7 @@ plt.ylabel("Evidence (log scale)", fontsize=16 )
 plt.xlabel("Complexity (log scale)", fontsize=16 )
 plt.savefig("pdf/example2_evidence.pdf")
 plt.close()    
-
+plt.show()
 #### End
 # pdf.close()
     
