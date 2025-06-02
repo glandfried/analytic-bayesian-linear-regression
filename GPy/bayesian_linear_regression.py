@@ -197,10 +197,14 @@ X_identidad = pd.DataFrame(X_identidad)
 
 
 
+BETA = (1/10) # Precisión de los datos, el inverso de su varianza
+ALPHA = (1/100) # Precisión de la creencia a prior, el inverso de su varianza
+
+
 # Ajustar un modelo
-model_bio = BayesianLinearRegressionGPy(variance_prior=100.0, noise_variance=10)
-model_base = BayesianLinearRegressionGPy(variance_prior=100.0, noise_variance=10)
-model_id = BayesianLinearRegressionGPy(variance_prior=100.0, noise_variance=10)
+model_bio = BayesianLinearRegressionGPy(variance_prior=1/ALPHA, noise_variance=1/BETA)
+model_base = BayesianLinearRegressionGPy(variance_prior=1/ALPHA, noise_variance=1/BETA)
+model_id = BayesianLinearRegressionGPy(variance_prior=1/ALPHA, noise_variance=1/BETA)
 
 
 model_bio.fit(np.array(X_biologico), np.array(Y_alturas))
@@ -209,7 +213,7 @@ model_id.fit(np.array(X_identidad), np.array(Y_alturas))
 
 log_evidence_bio = model_bio.log_marginal_likelihood()
 log_evidence_base = model_base.log_marginal_likelihood()
-log_evidence_id = model.log_marginal_likelihood()
+log_evidence_id = model_id.log_marginal_likelihood()
 
 print(f"Log evidencia marginal: {log_evidence_bio}")
 print(f"Log evidencia marginal: {log_evidence_base}")
